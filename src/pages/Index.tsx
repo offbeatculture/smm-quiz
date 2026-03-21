@@ -1535,12 +1535,29 @@ const Index = () => {
                 </div>
 
                 {/* SECTION H — SAFETY NET CTA */}
-                <div style={{ borderTop: `1px solid ${T.border}`, marginTop: "28px", paddingTop: "24px", textAlign: "center" }}>
+                <div style={{ fontWeight: 400, fontSize: "14px", color: T.textMuted }}>
+  Not ready for the bootcamp yet?
+</div>
+
+<a
+  href="https://manifestation.ankitneerav.in/fb13"
+  style={{
+    fontWeight: 500,
+    fontSize: "14px",
+    color: T.purple,
+    textDecoration: "underline",
+    marginTop: "6px",
+    display: "block"
+  }}
+>
+  No Thanks, I'll attend only the free masterclass
+</a>
+                {/* <div style={{ borderTop: `1px solid ${T.border}`, marginTop: "28px", paddingTop: "24px", textAlign: "center" }}>
                   <div style={{ fontWeight: 400, fontSize: "14px", color: T.textMuted }}>Not ready for the bootcamp yet?</div>
                   <a href="#free-class" style={{ fontWeight: 500, fontSize: "14px", color: T.purple, textDecoration: "underline", marginTop: "6px", display: "block" }}>
                     No Thanks, I'll attend only the free masterclass
                   </a>
-                </div>
+                </div> */}
               </div>
             );
           })()}
@@ -1767,7 +1784,8 @@ const Index = () => {
                     lineHeight: 1.3,
                   }}
                 >
-                  Get — ₹1,499
+                  {/* Get — ₹1,499 */}
+                  Sign Up Now
                 </button>
 
                 {/* Safety net */}
