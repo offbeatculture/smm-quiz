@@ -1640,13 +1640,17 @@ const Index = () => {
       throw new Error("Failed to submit form");
     }
 
-    const razorpayBase = "https://rzp.io/rzp/quiz-smm-fb1";
+    const razorpayBase = "https://pages.razorpay.com/quiz-smm-fb1";
 
-    const razorpayParams = new URLSearchParams({
-      "prefill[name]": cleanName,
-      "prefill[email]": cleanEmail,
-      "prefill[contact]": `+91${cleanPhone}`,
-    });
+ const razorpayParams = new URLSearchParams({
+  name: formData.name,
+  email: formData.email,
+  phone: formData.phone,
+  profession: formData.profession,
+});
+
+
+// window.location.href = `${razorpayBase}?${razorpayParams.toString()}`;
 
     window.location.href = `${razorpayBase}?${razorpayParams.toString()}`;
   } catch (error) {
