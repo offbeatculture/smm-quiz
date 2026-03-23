@@ -1118,7 +1118,7 @@ const Index = () => {
               </div>
               <div style={{ textAlign: "center", marginTop: "14px" }}>
                 <span style={{ fontWeight: 400, fontSize: "14px", color: T.textMuted }}>Want to understand the science first? </span>
-                <a href="#free-class" style={{ fontWeight: 400, fontSize: "14px", color: T.purple, textDecoration: "underline" }}>Join the free masterclass →</a>
+                <a href="https://manifestation.ankitneerav.in/fb13" style={{ fontWeight: 400, fontSize: "14px", color: T.purple, textDecoration: "underline" }}>Join the free masterclass →</a>
               </div>
             </div>
           )}
@@ -1791,7 +1791,7 @@ const Index = () => {
                 {/* Safety net */}
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                   <div style={{ fontWeight: 400, fontSize: '14px', color: T.textMuted }}>Don't want the bootcamp yet?</div>
-                  <a href="#free-class" style={{ fontWeight: 500, fontSize: '14px', color: T.purple, textDecoration: 'underline', marginTop: '6px', display: 'block' }}>
+                  <a href="https://manifestation.ankitneerav.in/fb13" style={{ fontWeight: 500, fontSize: '14px', color: T.purple, textDecoration: 'underline', marginTop: '6px', display: 'block' }}>
                     Join the free masterclass instead →
                   </a>
                 </div>
