@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { pageView, trackStandard, trackCustom } from "../lib/metaPixel";
 
 // ── Design Tokens ──
 const T = {
@@ -132,6 +133,55 @@ const Index = () => {
 
   const totalQuestions = 13;
 
+  // -- Tracking Refs --
+  const sessionStartTime = useRef<number>(Date.now());
+  const stepStartTime = useRef<number>(Date.now());
+  const hasTrackedFormStart = useRef<boolean>(false);
+  const trackedMilestones = useRef<Set<number>>(new Set());
+
+  // Track page views and drops based on screen changes
+  useEffect(() => {
+    if (screen === 0) {
+      pageView();
+      trackStandard("ViewContent", { page_type: "quiz_intro" });
+    } else if (screen >= 1 && screen <= 16) {
+      if (screen === 4 && !trackedMilestones.current.has(25)) {
+        trackCustom("QuizReached25Percent");
+        trackedMilestones.current.add(25);
+      }
+      if (screen === 8 && !trackedMilestones.current.has(50)) {
+        trackCustom("QuizReached50Percent");
+        trackedMilestones.current.add(50);
+      }
+      if (screen === 12 && !trackedMilestones.current.has(75)) {
+        trackCustom("QuizReached75Percent");
+        trackedMilestones.current.add(75);
+      }
+    } else if (screen === 17) {
+      trackCustom("QuizCompleted");
+    } else if (screen === 18) {
+      trackStandard("ViewContent", { page_type: "diagnosis_result" });
+    } else if (screen === 19) {
+      trackStandard("ViewContent", { page_type: "offer_page" });
+    } else if (screen === 20) {
+      trackStandard("ViewContent", { page_type: "lead_form" });
+      trackCustom("FormViewed");
+    }
+  }, [screen, currentQ]);
+
+  // Track session exit
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const sessionDuration = Math.round((Date.now() - sessionStartTime.current) / 1000);
+      trackCustom("SessionDuration", { session_duration_seconds: sessionDuration, last_screen: screen });
+      if (screen < 20) {
+        trackCustom("FunnelAbandoned", { last_screen: screen });
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [screen]);
+
   useEffect(() => {
     if ([5, 10, 15].includes(screen)) {
       setShowContinue(false);
@@ -230,6 +280,7 @@ const Index = () => {
   ) => {
     const key = idx >= 0 ? `idx_${idx}` : score + "_" + letter;
     setSelectedTile(key);
+
     setTimeout(() => {
       setSelectedTile(null);
       const newAnswers = [...answers, score];
@@ -392,6 +443,7 @@ const Index = () => {
                 <CTAButton
                   text="Start My Diagnosis →"
                   onClick={() => {
+                    trackCustom("CTA_Clicked", { cta_name: "Start My Diagnosis" });
                     setScreen(1);
                     setCurrentQ(1);
                   }}
@@ -592,7 +644,7 @@ const Index = () => {
                 </motion.div>
               </div>
               <button
-                onClick={() => { setScreen(6); setCurrentQ(5); }}
+                onClick={() => { trackCustom("CTA_Clicked", { cta_name: "I understand - Continue" }); setScreen(6); setCurrentQ(5); }}
                 style={{
                   background: "linear-gradient(135deg, #7B4FBA 0%, #4A2880 100%)",
                   color: T.white,
@@ -810,7 +862,7 @@ const Index = () => {
                 </motion.div>
               </div>
               <button
-                onClick={() => { setScreen(11); setCurrentQ(9); }}
+                onClick={() => { trackCustom("CTA_Clicked", { cta_name: "Got it - Continue" }); setScreen(11); setCurrentQ(9); }}
                 style={{
                   background: "linear-gradient(135deg, #7B4FBA 0%, #4A2880 100%)",
                   color: T.white,
@@ -987,7 +1039,7 @@ const Index = () => {
                 </motion.div>
               </div>
               <button
-                onClick={() => { setScreen(16); setCurrentQ(13); }}
+                onClick={() => { trackCustom("CTA_Clicked", { cta_name: "This changes everything - Continue" }); setScreen(16); setCurrentQ(13); }}
                 style={{
                   background: "linear-gradient(135deg, #7B4FBA 0%, #4A2880 100%)",
                   color: T.white,
@@ -1114,11 +1166,11 @@ const Index = () => {
 
               {/* CTA */}
               <div style={{ marginTop: "24px" }}>
-                <CTAButton text="Get The Fix — 5 Day Bootcamp →" onClick={() => setScreen(19)} />
+                <CTAButton text="Get The Fix — 5 Day Bootcamp →" onClick={() => { trackCustom("CTA_Clicked", { cta_name: "Get The Fix" }); setScreen(19); }} />
               </div>
               <div style={{ textAlign: "center", marginTop: "14px" }}>
                 <span style={{ fontWeight: 400, fontSize: "14px", color: T.textMuted }}>Want to understand the science first? </span>
-                <a href="https://manifestation.ankitneerav.in/fb13" style={{ fontWeight: 400, fontSize: "14px", color: T.purple, textDecoration: "underline" }}>Join the free masterclass →</a>
+                <a href="https://manifestation.ankitneerav.in/fb13" onClick={() => trackCustom("CTA_Clicked", { cta_name: "Join Free Masterclass (1)" })} style={{ fontWeight: 400, fontSize: "14px", color: T.purple, textDecoration: "underline" }}>Join the free masterclass →</a>
               </div>
             </div>
           )}
@@ -1209,7 +1261,7 @@ const Index = () => {
 
                   {/* CTA BELOW VIDEO */}
                   <button
-                    onClick={() => setScreen(20)}
+                    onClick={() => { trackCustom("CTA_Clicked", { cta_name: "Sign up for Bootcamp" }); setScreen(20); }}
                     style={{
                       background: 'linear-gradient(135deg, #7B4FBA 0%, #4A2880 100%)',
                       color: '#FFFFFF',
@@ -1419,7 +1471,7 @@ const Index = () => {
 
                       <div style={{ marginTop: "20px" }}>
                         <button
-                          onClick={() => setScreen(20)}
+                          onClick={() => { trackCustom("CTA_Clicked", { cta_name: "Sign up for Bootcamp" }); setScreen(20); }}
                           style={{
                             width: "100%",
                             minHeight: "60px",
@@ -1511,7 +1563,7 @@ const Index = () => {
 
                     <div style={{ marginTop: "16px" }}>
                       <button
-                        onClick={() => setScreen(20)}
+                        onClick={() => { trackCustom("CTA_Clicked", { cta_name: "Sign up for Bootcamp" }); setScreen(20); }}
                         style={{
                           width: "100%",
                           minHeight: "60px",
@@ -1592,7 +1644,17 @@ const Index = () => {
               fontFamily: "'Inter', sans-serif",
             };
 
+            const handleFieldFocus = (fieldName: string, e: any) => {
+              e.currentTarget.style.border = '2px solid #6B3FA0';
+              if (!hasTrackedFormStart.current) {
+                trackCustom("FormStarted");
+                hasTrackedFormStart.current = true;
+              }
+              trackCustom("FormFieldStarted", { field_name: fieldName });
+            };
+
             const handleSubmit = async () => {
+  trackCustom("FormSubmitted");
   let valid = true;
   const errors: Record<string, string> = {};
 
@@ -1657,6 +1719,18 @@ const Index = () => {
       throw new Error("Failed to submit form");
     }
 
+    trackStandard("Lead", {
+      content_category: "Bootcamp",
+      content_name: goalLabel || "Goals",
+      currency: "INR",
+      value: 1499
+    });
+
+    trackCustom("Lead-Quiz-smm", {
+      content_category: "Bootcamp",
+      content_name: goalLabel || "Goals"
+    });
+
     const razorpayBase = "https://pages.razorpay.com/quiz-smm-fb1";
 
  const razorpayParams = new URLSearchParams({
@@ -1665,9 +1739,6 @@ const Index = () => {
   phone: formData.phone,
   profession: formData.profession,
 });
-
-
-// window.location.href = `${razorpayBase}?${razorpayParams.toString()}`;
 
     window.location.href = `${razorpayBase}?${razorpayParams.toString()}`;
   } catch (error) {
@@ -1696,7 +1767,7 @@ const Index = () => {
                     placeholder="Your full name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    onFocus={(e) => (e.currentTarget.style.border = '2px solid #6B3FA0')}
+                    onFocus={(e) => handleFieldFocus('name', e)}
                     onBlur={(e) => (e.currentTarget.style.border = '2px solid #E4DCFA')}
                     style={inputStyle}
                   />
@@ -1711,7 +1782,7 @@ const Index = () => {
                     placeholder="your@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    onFocus={(e) => (e.currentTarget.style.border = '2px solid #6B3FA0')}
+                    onFocus={(e) => handleFieldFocus('email', e)}
                     onBlur={(e) => (e.currentTarget.style.border = '2px solid #E4DCFA')}
                     style={inputStyle}
                   />
@@ -1727,7 +1798,7 @@ const Index = () => {
                     maxLength={10}
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    onFocus={(e) => (e.currentTarget.style.border = '2px solid #6B3FA0')}
+                    onFocus={(e) => handleFieldFocus('phone', e)}
                     onBlur={(e) => (e.currentTarget.style.border = '2px solid #E4DCFA')}
                     style={inputStyle}
                   />
@@ -1740,7 +1811,7 @@ const Index = () => {
                   <select
                     value={formData.profession}
                     onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                    onFocus={(e) => (e.currentTarget.style.border = '2px solid #6B3FA0')}
+                    onFocus={(e) => handleFieldFocus('profession', e)}
                     onBlur={(e) => (e.currentTarget.style.border = '2px solid #E4DCFA')}
                     style={{ ...inputStyle, appearance: 'none' as const }}
                   >
@@ -1791,7 +1862,7 @@ const Index = () => {
                 {/* Safety net */}
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                   <div style={{ fontWeight: 400, fontSize: '14px', color: T.textMuted }}>Don't want the bootcamp yet?</div>
-                  <a href="https://manifestation.ankitneerav.in/fb13" style={{ fontWeight: 500, fontSize: '14px', color: T.purple, textDecoration: 'underline', marginTop: '6px', display: 'block' }}>
+                  <a href="https://manifestation.ankitneerav.in/fb13" onClick={() => trackCustom("CTA_Clicked", { cta_name: "Join Free Masterclass (2)" })} style={{ fontWeight: 500, fontSize: '14px', color: T.purple, textDecoration: 'underline', marginTop: '6px', display: 'block' }}>
                     Join the free masterclass instead →
                   </a>
                 </div>
