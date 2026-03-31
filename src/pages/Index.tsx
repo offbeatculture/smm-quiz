@@ -1694,7 +1694,8 @@ const Index = () => {
   if (!valid) return;
 
   try {
-    const webhookUrl = "https://offbeatn8n.coachswastik.com/webhook/smm-quiz";
+    const leadWebhookUrl =
+      "https://offbeatn8n.coachswastik.com/webhook-test/smm-quiz-lead";
 
     const payload = {
       name: cleanName,
@@ -1707,7 +1708,8 @@ const Index = () => {
       source: "bootcamp-registration-page",
     };
 
-    const response = await fetch(webhookUrl, {
+    // 1) save lead first
+    const leadResponse = await fetch(leadWebhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1715,30 +1717,31 @@ const Index = () => {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to submit form");
+    if (!leadResponse.ok) {
+      throw new Error("Failed to save lead");
     }
 
     trackStandard("Lead", {
       content_category: "Bootcamp",
       content_name: goalLabel || "Goals",
       currency: "INR",
-      value: 1499
+      value: 1499,
     });
 
     trackCustom("Lead-Quiz-smm", {
       content_category: "Bootcamp",
-      content_name: goalLabel || "Goals"
+      content_name: goalLabel || "Goals",
     });
 
+    // 2) then redirect to Razorpay page
     const razorpayBase = "https://pages.razorpay.com/quiz-smm-fb1";
 
- const razorpayParams = new URLSearchParams({
-  name: formData.name,
-  email: formData.email,
-  phone: formData.phone,
-  profession: formData.profession,
-});
+    const razorpayParams = new URLSearchParams({
+      name: cleanName,
+      email: cleanEmail,
+      phone: cleanPhone,
+      profession: cleanProfession,
+    });
 
     window.location.href = `${razorpayBase}?${razorpayParams.toString()}`;
   } catch (error) {
