@@ -1695,7 +1695,7 @@ const Index = () => {
 
   try {
     const leadWebhookUrl =
-      "https://offbeatn8n.coachswastik.com/webhook-test/smm-quiz-lead";
+      "https://offbeatn8n.coachswastik.com/webhook/smm-quiz-lead";
 
     const payload = {
       name: cleanName,
