@@ -1695,7 +1695,7 @@ const Index = () => {
 
   try {
     const leadWebhookUrl =
-      "https://offbeatn8n.coachswastik.com/webhook/smm-quiz-lead";
+      "https://offbeatn8n.coachswastik.com/webhook/smm-quiz-leads";
 
     const payload = {
       name: cleanName,
@@ -1716,6 +1716,10 @@ const Index = () => {
       },
       body: JSON.stringify(payload),
     });
+
+
+    console.log("Lead response status:", leadResponse.status);
+console.log("Lead response body:", await leadResponse.text());
 
     if (!leadResponse.ok) {
       throw new Error("Failed to save lead");
